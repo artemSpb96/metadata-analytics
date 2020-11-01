@@ -13,5 +13,5 @@ CREATE TABLE IF NOT EXISTS node (
     ver int NOT NULL,
     meta json NOT NULL,
     create_time TIMESTAMP NOT NULL,
-    PRIMARY KEY (fs_id, path)
+    PRIMARY KEY (fs_id, path, ver)
 );
