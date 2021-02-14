@@ -45,7 +45,7 @@ public class NodeController {
         return new NodesTo(nodeToList);
     }
 
-    @PostMapping("/v{ver}/filesystems/{filesystemId}/{version}")
+    @PutMapping("/v{ver}/filesystems/{filesystemId}/{version}")
     public void createNode(
             @PathVariable int filesystemId,
             @PathVariable int version,
