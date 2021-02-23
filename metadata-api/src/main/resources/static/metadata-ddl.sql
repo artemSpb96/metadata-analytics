@@ -13,5 +13,7 @@ CREATE TABLE IF NOT EXISTS node (
     ver int NOT NULL,
     meta json NOT NULL,
     create_time TIMESTAMP NOT NULL,
+    is_dir BOOL NOT NULL,
+    file_type TEXT,
     PRIMARY KEY (fs_id, path, ver)
 );

@@ -12,6 +12,7 @@ import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.parquet.hadoop.util.HadoopInputFile;
+import ru.spbu.metadata.common.domain.FileType;
 
 public class HdfsTraverser {
     private final FileSystem fs;
@@ -22,14 +23,14 @@ public class HdfsTraverser {
         this.objectMapper = objectMapper;
     }
 
-    public Stream<Node> traverse(Path root) throws IOException {
+    public Stream<FileMeta> traverse(Path root) throws IOException {
         FsIterator fsIterator = new FsIterator(fs.listFiles(root, true));
 
         return Streams.stream(fsIterator)
-                .map(this::toNode);
+                .map(this::toFileMeta);
     }
 
-    private Node toNode(LocatedFileStatus fileStatus) {
+    private FileMeta toFileMeta(LocatedFileStatus fileStatus) {
         HadoopInputFile inputFile = null;
         try {
             inputFile = HadoopInputFile.fromStatus(fileStatus, fs.getConf());
@@ -37,9 +38,11 @@ public class HdfsTraverser {
             try (var reader = ParquetFactory.createParquetReader(inputFile)) {
                 GenericRecord record = reader.read();
 
-                return new Node(
+                return new FileMeta(
                         fileStatus.getPath().toUri().getPath(),
-                        objectMapper.readTree(record.getSchema().toString())
+                        objectMapper.readTree(record.getSchema().toString()),
+                        false,
+                        FileType.PARQUET
                 );
             }
         } catch (IOException e) {

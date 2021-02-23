@@ -1,4 +1,4 @@
-package ru.spbu.metadata.collector;
+package ru.spbu.metadata.common;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

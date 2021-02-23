@@ -1,61 +1,56 @@
 package ru.spbu.metadata.api.web.controller;
 
-import org.springframework.web.bind.annotation.*;
-import ru.spbu.metadata.api.domain.Node;
-import ru.spbu.metadata.api.service.NodeService;
-import ru.spbu.metadata.api.web.dto.NodeCreationParamsTo;
-import ru.spbu.metadata.api.web.dto.NodeTo;
-import ru.spbu.metadata.api.web.dto.NodesTo;
-import ru.spbu.metadata.api.web.transformer.NodeTransformer;
-
 import java.util.List;
-import java.util.stream.Collectors;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import ru.spbu.metadata.api.service.NodeService;
+import ru.spbu.metadata.common.domain.Node;
+import ru.spbu.metadata.common.domain.NodeCreationParams;
 
 @RestController
 public class NodeController {
     private final NodeService nodeService;
-    private final NodeTransformer nodeTransformer;
 
-    public NodeController(NodeService nodeService, NodeTransformer nodeTransformer) {
+    public NodeController(NodeService nodeService) {
         this.nodeService = nodeService;
-        this.nodeTransformer = nodeTransformer;
     }
 
     @GetMapping("/v{ver}/filesystems/{filesystemId}/{version}")
-    public NodeTo getNode(
+    public Node getNode(
             @PathVariable int filesystemId,
             @PathVariable int version,
             @RequestParam String path
     ) {
-        Node node = nodeService.findNode(filesystemId, path, version).orElseThrow();
-
-        return nodeTransformer.toDto(node);
+        return nodeService.findNode(filesystemId, path, version).orElseThrow();
     }
 
     @GetMapping("/v{ver}/filesystems/{filesystemId}/{version}/children")
-    public NodesTo getChildrenNodes(
+    public ResponseEntity<List<Node>> getChildrenNodes(
             @PathVariable int filesystemId,
             @PathVariable int version,
             @RequestParam String path
     ) {
-        List<NodeTo> nodeToList = nodeService.findChildrenNodes(filesystemId, path, version).stream()
-                .map(nodeTransformer::toDto)
-                .collect(Collectors.toList());
+        List<Node> nodes = nodeService.findChildrenNodes(filesystemId, path, version);
 
-        return new NodesTo(nodeToList);
+        return ResponseEntity.ok(nodes);
     }
 
     @PutMapping("/v{ver}/filesystems/{filesystemId}/{version}")
     public void createNode(
             @PathVariable int filesystemId,
             @PathVariable int version,
-            @RequestBody NodeCreationParamsTo nodeCreationParamsTo
+            @RequestBody NodeCreationParams nodeCreationParams
     ) {
         nodeService.create(
                 filesystemId,
-                nodeCreationParamsTo.getPath(),
                 version,
-                nodeTransformer.toMetadata(nodeCreationParamsTo)
+                nodeCreationParams
         );
     }
 }

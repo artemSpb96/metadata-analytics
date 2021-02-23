@@ -1,12 +1,13 @@
 package ru.spbu.metadata.api.service;
 
-import org.springframework.stereotype.Service;
-import ru.spbu.metadata.api.domain.Node;
-import ru.spbu.metadata.api.repository.NodeRepository;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+import ru.spbu.metadata.api.repository.NodeRepository;
+import ru.spbu.metadata.common.domain.Node;
+import ru.spbu.metadata.common.domain.NodeCreationParams;
 
 @Service
 public class NodeService {
@@ -24,13 +25,15 @@ public class NodeService {
         return nodeRepository.findChildrenNodes(filesystemId, basePath, version);
     }
 
-    public void create(int filesystemId, String path, int version, String meta) {
+    public void create(int filesystemId, int version, NodeCreationParams nodeCreationParams) {
         nodeRepository.save(new Node(
                 filesystemId,
-                path,
+                nodeCreationParams.getPath(),
                 version,
-                meta,
-                LocalDateTime.now()
+                nodeCreationParams.getMeta(),
+                LocalDateTime.now(),
+                nodeCreationParams.isDir(),
+                nodeCreationParams.getFileType()
         ));
     }
 }

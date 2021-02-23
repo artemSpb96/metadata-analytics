@@ -10,8 +10,10 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import ru.spbu.metadata.common.MetadataApiClient;
+import ru.spbu.metadata.common.domain.NodeCreationParams;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"ru.spbu.metadata.common"})
 public class Main implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
@@ -42,9 +44,18 @@ public class Main implements ApplicationRunner {
 
         new HdfsTraverser(fileSystem, new ObjectMapper())
                 .traverse(new Path("/"))
-                .forEach(node -> {
-                    log.info("Find node: {}", node);
-                    metadataApiClient.createNode(filesystemId, version, node);
+                .forEach(fileMeta -> {
+                    log.info("Find fileMeta: {}", fileMeta);
+                    metadataApiClient.createNode(
+                            filesystemId,
+                            version,
+                            new NodeCreationParams(
+                                    fileMeta.getMeta(),
+                                    fileMeta.getPath(),
+                                    fileMeta.isDir(),
+                                    fileMeta.getFileType()
+                            )
+                    );
                 });
     }
 }

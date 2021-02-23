@@ -19,6 +19,7 @@
     <properties>
         <java.version>11</java.version>
 
+        <metadata.common.version>0.0.1-SNAPSHOT</metadata.common.version>
     </properties>
 
     <dependencies>
@@ -43,6 +44,12 @@
             <groupId>org.apache.parquet</groupId>
             <artifactId>parquet-avro</artifactId>
             <version>1.11.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.spbu.metadata</groupId>
+            <artifactId>metadata-common</artifactId>
+            <version>${metadata.common.version}</version>
         </dependency>
 
     </dependencies>
