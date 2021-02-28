@@ -4,50 +4,29 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Streams;
-import org.apache.avro.generic.GenericRecord;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
-import org.apache.parquet.hadoop.util.HadoopInputFile;
-import ru.spbu.metadata.common.domain.FileType;
+import ru.spbu.metadata.collector.filemeta.FileMeta;
+import ru.spbu.metadata.collector.filemeta.FileMetaFactoryChooser;
 
 public class HdfsTraverser {
     private final FileSystem fs;
-    private final ObjectMapper objectMapper;
+    private final FileMetaFactoryChooser fileMetaFactoryChooser;
 
-    public HdfsTraverser(FileSystem fs, ObjectMapper objectMapper) {
+    public HdfsTraverser(FileSystem fs, FileMetaFactoryChooser fileMetaFactoryChooser) {
         this.fs = fs;
-        this.objectMapper = objectMapper;
+        this.fileMetaFactoryChooser = fileMetaFactoryChooser;
     }
 
     public Stream<FileMeta> traverse(Path root) throws IOException {
         FsIterator fsIterator = new FsIterator(fs.listFiles(root, true));
 
         return Streams.stream(fsIterator)
-                .map(this::toFileMeta);
-    }
-
-    private FileMeta toFileMeta(LocatedFileStatus fileStatus) {
-        HadoopInputFile inputFile = null;
-        try {
-            inputFile = HadoopInputFile.fromStatus(fileStatus, fs.getConf());
-
-            try (var reader = ParquetFactory.createParquetReader(inputFile)) {
-                GenericRecord record = reader.read();
-
-                return new FileMeta(
-                        fileStatus.getPath().toUri().getPath(),
-                        objectMapper.readTree(record.getSchema().toString()),
-                        false,
-                        FileType.PARQUET
-                );
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Read input file exception", e);
-        }
+                .map(hadoopFileStatus ->
+                        fileMetaFactoryChooser.choose(fs, hadoopFileStatus).createFileMeta(fs, hadoopFileStatus));
     }
 
     private static class FsIterator implements Iterator<LocatedFileStatus> {

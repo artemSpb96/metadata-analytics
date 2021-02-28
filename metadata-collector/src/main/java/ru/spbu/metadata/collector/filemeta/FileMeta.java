@@ -1,4 +1,4 @@
-package ru.spbu.metadata.collector;
+package ru.spbu.metadata.collector.filemeta;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.MoreObjects;
