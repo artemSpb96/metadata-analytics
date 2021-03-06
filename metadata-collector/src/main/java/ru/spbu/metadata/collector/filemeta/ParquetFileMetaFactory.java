@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.parquet.hadoop.util.HadoopInputFile;
 import org.springframework.stereotype.Component;
 import ru.spbu.metadata.collector.ParquetFactory;
@@ -18,7 +18,7 @@ public class ParquetFileMetaFactory extends FileMetaFactory {
     }
 
     @Override
-    public FileMeta createFileMeta(FileSystem fs, LocatedFileStatus hadoopFileStatus) {
+    public FileMeta createFileMeta(FileSystem fs, FileStatus hadoopFileStatus) {
         HadoopInputFile inputFile = null;
         try {
             inputFile = HadoopInputFile.fromStatus(hadoopFileStatus, fs.getConf());

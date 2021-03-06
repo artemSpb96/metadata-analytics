@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.parquet.hadoop.util.HadoopInputFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class FileMetaFactoryChooser {
         this.unknownFileMetaFactory = unknownFileMetaFactory;
     }
 
-    public FileMetaFactory choose(FileSystem fs, LocatedFileStatus hadoopFileStatus) {
+    public FileMetaFactory choose(FileSystem fs, FileStatus hadoopFileStatus) {
         if (hadoopFileStatus.isDirectory()) {
             return directoryFileMetaFactory;
         }

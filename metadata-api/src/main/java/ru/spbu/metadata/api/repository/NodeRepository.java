@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.spbu.metadata.common.domain.Node;
@@ -72,15 +73,14 @@ public class NodeRepository {
 
         jdbcTemplate.update(
                 INSERT_NODE_QUERY,
-                Map.of(
-                        "filesystemId", node.getFilesystemId(),
-                        "path", node.getPath(),
-                        "version", node.getVersion(),
-                        "meta", meta,
-                        "createTime", node.getCreateTime(),
-                        "isDir", node.isDir(),
-                        "fileType", node.getFileType().name()
-                )
+                new MapSqlParameterSource()
+                        .addValue("filesystemId", node.getFilesystemId())
+                        .addValue("path", node.getPath())
+                        .addValue("version", node.getVersion())
+                        .addValue("meta", meta)
+                        .addValue("createTime", node.getCreateTime())
+                        .addValue("isDir", node.isDir())
+                        .addValue("fileType", node.getFileType() == null ? null : node.getFileType().name())
         );
     }
 }
