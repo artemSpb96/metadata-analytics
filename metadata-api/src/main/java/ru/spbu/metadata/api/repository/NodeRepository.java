@@ -23,7 +23,7 @@ public class NodeRepository {
     private static final String SELECT_CHILDREN_NODES_QUERY = "" +
             "WITH selected_nodes AS (SELECT fs_id, path, MAX(ver) AS ver " +
             "FROM node " +
-            "WHERE fs_id = :filesystemId AND path LIKE :basePath AND ver <= :version " +
+            "WHERE fs_id = :filesystemId AND path ~ :pathRegex AND ver <= :version " +
             "GROUP BY fs_id, path) " +
             "SELECT n.fs_id, n.path, n.ver, n.meta, n.create_time, n.is_dir, n.file_type " +
             "FROM node AS n " +
@@ -54,11 +54,14 @@ public class NodeRepository {
     }
 
     public List<Node> findChildrenNodes(int filesystemId, String basePath, int version) {
-        //TODO: escape basePath
-        //TODO: find children after {basePath}/
+        if (basePath.endsWith("/")) {
+            basePath = basePath.substring(0, basePath.length() - 1);
+        }
+        String pathRegex = String.format("^%s/([^/]+)/?$", RegexUtils.escapeSpecialChars(basePath));
+
         return jdbcTemplate.query(
                 SELECT_CHILDREN_NODES_QUERY,
-                Map.of("filesystemId", filesystemId, "basePath", basePath + "%", "version", version),
+                Map.of("filesystemId", filesystemId, "pathRegex", pathRegex, "version", version),
                 nodeMapper
         );
     }

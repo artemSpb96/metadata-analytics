@@ -5,6 +5,10 @@ public enum FileType {
     UNKNOWN;
 
     public static FileType fromString(String str) {
+        if (str == null) {
+            return null;
+        }
+
         for (FileType fileType : FileType.values()) {
             if (fileType.name().equals(str)) {
                 return fileType;
