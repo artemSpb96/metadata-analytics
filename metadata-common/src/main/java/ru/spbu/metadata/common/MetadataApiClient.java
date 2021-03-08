@@ -38,6 +38,7 @@ public class MetadataApiClient {
     public List<Node> getChildrenNodes(int filesystemId, int version, String path) {
         URI getChildrenNodesUrl = UriComponentsBuilder.fromUriString(url)
                 .pathSegment("filesystems", String.valueOf(filesystemId), String.valueOf(version), "children")
+                .queryParam("path", path)
                 .build()
                 .toUri();
 

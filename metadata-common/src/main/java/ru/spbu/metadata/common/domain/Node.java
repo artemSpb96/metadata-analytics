@@ -3,6 +3,8 @@ package ru.spbu.metadata.common.domain;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class Node {
@@ -14,14 +16,15 @@ public class Node {
     private final boolean isDir;
     private final FileType fileType;
 
+    @JsonCreator
     public Node(
-            Integer filesystemId,
-            String path,
-            int version,
-            JsonNode meta,
-            LocalDateTime createTime,
-            boolean isDir,
-            FileType fileType
+            @JsonProperty("filesystemId") Integer filesystemId,
+            @JsonProperty("path") String path,
+            @JsonProperty("version") int version,
+            @JsonProperty("meta") JsonNode meta,
+            @JsonProperty("createTime") LocalDateTime createTime,
+            @JsonProperty("isDir") boolean isDir,
+            @JsonProperty("fileType") FileType fileType
     ) {
         this.filesystemId = filesystemId;
         this.path = path;
@@ -52,6 +55,7 @@ public class Node {
         return createTime;
     }
 
+    @JsonProperty("isDir")
     public boolean isDir() {
         return isDir;
     }

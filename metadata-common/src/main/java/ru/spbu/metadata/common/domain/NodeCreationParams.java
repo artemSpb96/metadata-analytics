@@ -31,6 +31,7 @@ public class NodeCreationParams {
         return path;
     }
 
+    @JsonProperty("isDir")
     public boolean isDir() {
         return isDir;
     }

@@ -44,7 +44,7 @@ public class AnalyticsService {
             if (childrenNode.isDir()) {
                 hasChildrenDirs = true;
                 dfs(childrenNode, fileType, fittedNodes);
-            } else if (node.getFileType() != fileType) {
+            } else if (childrenNode.getFileType() != fileType) {
                 isAllFilesOfGivenType = false;
             } else if (!fileMeta.equals(childrenNode.getMeta())) {
                 isConsistentMeta = false;
