@@ -33,6 +33,14 @@ public class NodeRepository {
             "INSERT INTO node(fs_id, path, ver, meta, create_time, is_dir, file_type) " +
             "VALUES (:filesystemId, :path, :version, to_json(:meta::json), :createTime, :isDir, :fileType);";
 
+    private static final String UPDATE_NODE_QUERY = "" +
+            "UPDATE node " +
+            "SET meta = to_json(:meta), " +
+            "    create_time = :createTime, " +
+            "    is_dir = :isDir, " +
+            "    file_type = :fileType " +
+            "WHERE fs_id = :filesystemId AND path = :path AND ver = :version;";
+
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final NodeMapper nodeMapper;
     private final ObjectMapper objectMapper;
@@ -66,7 +74,7 @@ public class NodeRepository {
         );
     }
 
-    public void save(Node node) {
+    public void createNode(Node node) {
         String meta;
         try {
             meta = objectMapper.writeValueAsString(node.getMeta());
@@ -76,6 +84,27 @@ public class NodeRepository {
 
         jdbcTemplate.update(
                 INSERT_NODE_QUERY,
+                new MapSqlParameterSource()
+                        .addValue("filesystemId", node.getFilesystemId())
+                        .addValue("path", node.getPath())
+                        .addValue("version", node.getVersion())
+                        .addValue("meta", meta)
+                        .addValue("createTime", node.getCreateTime())
+                        .addValue("isDir", node.isDir())
+                        .addValue("fileType", node.getFileType() == null ? null : node.getFileType().name())
+        );
+    }
+
+    public void updateNode(Node node) {
+        String meta;
+        try {
+            meta = objectMapper.writeValueAsString(node.getMeta());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(String.format("Could not transform json to string: %s", node.getMeta()), e);
+        }
+
+        jdbcTemplate.update(
+                UPDATE_NODE_QUERY,
                 new MapSqlParameterSource()
                         .addValue("filesystemId", node.getFilesystemId())
                         .addValue("path", node.getPath())

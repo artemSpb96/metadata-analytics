@@ -42,12 +42,12 @@ public class NodeController {
     }
 
     @PutMapping("/v{ver}/filesystems/{filesystemId}/{version}")
-    public void createNode(
+    public void saveNode(
             @PathVariable int filesystemId,
             @PathVariable int version,
             @RequestBody NodeCreationParams nodeCreationParams
     ) {
-        nodeService.create(
+        nodeService.saveNode(
                 filesystemId,
                 version,
                 nodeCreationParams

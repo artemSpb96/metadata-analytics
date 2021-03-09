@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.base.MoreObjects;
 
 public class Node {
     private final Integer filesystemId;
@@ -62,5 +63,18 @@ public class Node {
 
     public FileType getFileType() {
         return fileType;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("filesystemId", filesystemId)
+                .add("path", path)
+                .add("version", version)
+                .add("meta", meta)
+                .add("createTime", createTime)
+                .add("isDir", isDir)
+                .add("fileType", fileType)
+                .toString();
     }
 }
