@@ -10,10 +10,11 @@ CREATE TABLE IF NOT EXISTS filesystem (
 CREATE TABLE IF NOT EXISTS node (
     fs_id int REFERENCES filesystem(fs_id),
     path TEXT NOT NULL,
+    start_ver int NOT NULL,
     ver int NOT NULL,
     meta json NOT NULL,
     create_time TIMESTAMP NOT NULL,
     is_dir BOOL NOT NULL,
     file_type TEXT,
-    PRIMARY KEY (fs_id, path, ver)
+    PRIMARY KEY (fs_id, path, start_ver)
 );

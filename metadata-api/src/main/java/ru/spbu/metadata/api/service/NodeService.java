@@ -38,11 +38,15 @@ public class NodeService {
 
     @Transactional
     public void saveNode(int filesystemId, int version, NodeCreationParams nodeCreationParams) {
-        Optional<Node> oldNodeOpt = nodeRepository.findNode(filesystemId, nodeCreationParams.getPath(), version);
+        Optional<Node> oldNodeOpt = nodeRepository.findNode(filesystemId, nodeCreationParams.getPath(), version - 1);
+
+        // delete possible conflicting nodes from previous collector launches
+        nodeRepository.deleteNode(filesystemId, nodeCreationParams.getPath(), version);
 
         Node newNode = new Node(
                 filesystemId,
                 nodeCreationParams.getPath(),
+                version,
                 version,
                 nodeCreationParams.getMeta(),
                 LocalDateTime.now(),
@@ -57,16 +61,26 @@ public class NodeService {
         }
 
         if (isNodeNotChanged(oldNodeOpt.get(), newNode)) {
-            log.info("Do not save node  duplicated node of {}", oldNodeOpt.get());
-            return;
-        }
-
-        if (oldNodeOpt.get().getVersion() != newNode.getVersion()) {
-            nodeRepository.createNode(newNode);
-            log.info("Create node {} cause it differs from previous version {}", newNode, oldNodeOpt.get());
+            nodeRepository.updateNodeVersion(
+                    filesystemId,
+                    nodeCreationParams.getPath(),
+                    oldNodeOpt.get().getStartVersion(),
+                    version
+            );
+            log.info("Update version of old node {}", oldNodeOpt.get());
         } else {
-            nodeRepository.updateNode(newNode);
-            log.info("Update node {} cause it differs from node with same version {}", newNode, oldNodeOpt.get());
+            if (oldNodeOpt.get().getVersion() >= version) {
+                nodeRepository.updateNodeVersion(
+                        filesystemId,
+                        oldNodeOpt.get().getPath(),
+                        oldNodeOpt.get().getStartVersion(),
+                        version - 1
+                );
+                log.info("Fix oldNode version from {} to {}", oldNodeOpt.get().getVersion(), version);
+            }
+
+            nodeRepository.createNode(newNode);
+            log.info("Create new node {} cause it differs from previous version {}", newNode, oldNodeOpt.get());
         }
     }
 }

@@ -19,7 +19,7 @@ public class AnalyticsService {
 
     public List<Node> findDirectoriesWithConsistentMetaFiles(int filesystemId, FileType fileType) {
         List<Node> fittedNodes = new LinkedList<>();
-        Node rootNode = new Node(filesystemId, "/", 1, null, null, true, null);
+        Node rootNode = new Node(filesystemId, "/", 1, 1, null, null, true, null);
         dfs(rootNode, fileType, fittedNodes);
 
         return fittedNodes;

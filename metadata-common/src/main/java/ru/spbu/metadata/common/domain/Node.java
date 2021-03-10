@@ -11,6 +11,7 @@ import com.google.common.base.MoreObjects;
 public class Node {
     private final Integer filesystemId;
     private final String path;
+    private final int startVersion;
     private final int version;
     private final JsonNode meta;
     private final LocalDateTime createTime;
@@ -21,6 +22,7 @@ public class Node {
     public Node(
             @JsonProperty("filesystemId") Integer filesystemId,
             @JsonProperty("path") String path,
+            @JsonProperty("startVersion") int startVersion,
             @JsonProperty("version") int version,
             @JsonProperty("meta") JsonNode meta,
             @JsonProperty("createTime") LocalDateTime createTime,
@@ -29,6 +31,7 @@ public class Node {
     ) {
         this.filesystemId = filesystemId;
         this.path = path;
+        this.startVersion = startVersion;
         this.version = version;
         this.meta = meta;
         this.createTime = createTime;
@@ -42,6 +45,10 @@ public class Node {
 
     public String getPath() {
         return path;
+    }
+
+    public int getStartVersion() {
+        return startVersion;
     }
 
     public int getVersion() {
@@ -70,6 +77,7 @@ public class Node {
         return MoreObjects.toStringHelper(this)
                 .add("filesystemId", filesystemId)
                 .add("path", path)
+                .add("startVersion", startVersion)
                 .add("version", version)
                 .add("meta", meta)
                 .add("createTime", createTime)

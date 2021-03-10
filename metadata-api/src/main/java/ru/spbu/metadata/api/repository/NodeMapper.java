@@ -33,6 +33,7 @@ public class NodeMapper implements RowMapper<Node> {
         return new Node(
                 rs.getInt("fs_id"),
                 rs.getString("path"),
+                rs.getInt("start_ver"),
                 rs.getInt("ver"),
                 meta,
                 rs.getTimestamp("create_time").toLocalDateTime(),
