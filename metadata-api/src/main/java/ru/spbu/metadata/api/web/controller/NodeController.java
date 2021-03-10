@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.spbu.metadata.api.service.NodeService;
+import ru.spbu.metadata.api.web.exception.NotFoundException;
 import ru.spbu.metadata.common.domain.Node;
 import ru.spbu.metadata.common.domain.NodeCreationParams;
 
@@ -27,7 +28,8 @@ public class NodeController {
             @PathVariable int version,
             @RequestParam String path
     ) {
-        return nodeService.findNode(filesystemId, path, version).orElseThrow();
+        return nodeService.findNode(filesystemId, path, version)
+                .orElseThrow(() -> new NotFoundException("Not found node"));
     }
 
     @GetMapping("/v{ver}/filesystems/{filesystemId}/{version}/children")

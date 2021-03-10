@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.spbu.metadata.api.service.FilesystemService;
+import ru.spbu.metadata.api.web.exception.NotFoundException;
 import ru.spbu.metadata.common.domain.Filesystem;
 import ru.spbu.metadata.common.domain.FilesystemCreationParams;
 import ru.spbu.metadata.common.domain.FilesystemUpdateParams;
@@ -31,7 +32,8 @@ public class FilesystemController {
 
     @GetMapping("/v{ver}/filesystems/{filesystemId}")
     public Filesystem getFilesystem(@PathVariable int filesystemId) {
-        return filesystemService.findById(filesystemId).orElseThrow();
+        return filesystemService.findById(filesystemId)
+                .orElseThrow(() -> new NotFoundException("Not found filesystem"));
     }
 
     @PostMapping("/v{ver}/filesystems")

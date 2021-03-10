@@ -44,7 +44,8 @@ public class Main implements ApplicationRunner {
         StopWatch sw = new StopWatch("Update filesystem metadata");
 
         sw.start("get filesystem info");
-        Filesystem filesystem = metadataApiClient.getFilesystem(filesystemId);
+        Filesystem filesystem = metadataApiClient.getFilesystem(filesystemId)
+                .orElseThrow(() -> new RuntimeException("Not found filesystem by " + filesystemId + " id"));
         sw.stop();
 
         Configuration config = new Configuration();
