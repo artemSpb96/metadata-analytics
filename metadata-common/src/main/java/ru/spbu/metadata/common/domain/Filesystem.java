@@ -1,39 +1,26 @@
-package ru.spbu.metadata.api.domain;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
+package ru.spbu.metadata.common.domain;
 
 import java.time.LocalDateTime;
 
-@Table("filesystem")
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Filesystem {
-    @Id
-    @Column("fs_id")
     private final Integer id;
-
-    @Column("active_ver")
     private final int activeVersion;
-
-    @Column("name")
     private final String name;
-
-    @Column("url")
     private final String url;
-
-    @Column("create_time")
     private final LocalDateTime createTime;
-
-    @Column("update_time")
     private final LocalDateTime updateTime;
 
+    @JsonCreator
     public Filesystem(
-            Integer id,
-            int activeVersion,
-            String name,
-            String url,
-            LocalDateTime createTime,
-            LocalDateTime updateTime
+            @JsonProperty("id") Integer id,
+            @JsonProperty("activeVersion") int activeVersion,
+            @JsonProperty("name") String name,
+            @JsonProperty("url") String url,
+            @JsonProperty("createTime") LocalDateTime createTime,
+            @JsonProperty("updateTime") LocalDateTime updateTime
     ) {
         this.id = id;
         this.activeVersion = activeVersion;

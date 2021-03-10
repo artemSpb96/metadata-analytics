@@ -1,13 +1,14 @@
 package ru.spbu.metadata.api.service;
 
-import org.springframework.stereotype.Service;
-import ru.spbu.metadata.api.domain.Filesystem;
-import ru.spbu.metadata.api.repository.FilesystemRepository;
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+import ru.spbu.metadata.api.repository.FilesystemRepository;
+import ru.spbu.metadata.common.domain.Filesystem;
+import ru.spbu.metadata.common.domain.FilesystemCreationParams;
+import ru.spbu.metadata.common.domain.FilesystemUpdateParams;
 
 @Service
 public class FilesystemService {
@@ -18,29 +19,28 @@ public class FilesystemService {
     }
 
     public List<Filesystem> findAll() {
-        List<Filesystem> filesystems = new ArrayList<>();
-        filesystemRepository.findAll().forEach(filesystems::add);
-
-        return filesystems;
+        return filesystemRepository.findAll();
     }
 
     public Optional<Filesystem> findById(int id) {
-        return filesystemRepository.findById(id);
+        return filesystemRepository.findFilesystem(id);
     }
 
-    public Filesystem create(String name, String url) {
+    public int create(FilesystemCreationParams filesystemCreationParams) {
         LocalDateTime now = LocalDateTime.now();
-        return filesystemRepository.save(new Filesystem(
+        Filesystem newFilesystem = new Filesystem(
                 null,
                 1,
-                name,
-                url,
+                filesystemCreationParams.getName(),
+                filesystemCreationParams.getUrl(),
                 now,
                 now
-        ));
+        );
+
+        return filesystemRepository.createFilesystem(newFilesystem);
     }
 
-    public void updateActiveVersion(int id, int newActiveVersion) {
-        filesystemRepository.updateActiveVersion(id, newActiveVersion, LocalDateTime.now());
+    public void updateActiveVersion(int id, FilesystemUpdateParams filesystemUpdateParams) {
+        filesystemRepository.updateActiveVersion(id, filesystemUpdateParams.getActiveVersion(), LocalDateTime.now());
     }
 }
