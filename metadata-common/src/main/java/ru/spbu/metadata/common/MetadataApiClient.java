@@ -10,6 +10,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import ru.spbu.metadata.common.domain.Filesystem;
+import ru.spbu.metadata.common.domain.FilesystemUpdateParams;
 import ru.spbu.metadata.common.domain.Node;
 import ru.spbu.metadata.common.domain.NodeCreationParams;
 
@@ -49,5 +51,26 @@ public class MetadataApiClient {
                 new ParameterizedTypeReference<List<Node>>() {
                 }
         ).getBody();
+    }
+
+    public Filesystem getFilesystem(int filesystemId) {
+        URI getFilesystemUrl = UriComponentsBuilder.fromUriString(url)
+                .pathSegment("filesystems", String.valueOf(filesystemId))
+                .build()
+                .toUri();
+
+        return metadataApiRestTemplate.getForObject(
+                getFilesystemUrl,
+                Filesystem.class
+        );
+    }
+
+    public void updateFilesystem(int filesystemId, FilesystemUpdateParams filesystemUpdateParams) {
+        URI updateFilesystemUrl = UriComponentsBuilder.fromUriString(url)
+                .pathSegment("filesystems", String.valueOf(filesystemId))
+                .build()
+                .toUri();
+
+        metadataApiRestTemplate.put(updateFilesystemUrl, filesystemUpdateParams);
     }
 }
