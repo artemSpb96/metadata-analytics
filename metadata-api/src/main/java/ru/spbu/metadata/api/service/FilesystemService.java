@@ -30,7 +30,7 @@ public class FilesystemService {
         LocalDateTime now = LocalDateTime.now();
         Filesystem newFilesystem = new Filesystem(
                 null,
-                1,
+                0,
                 filesystemCreationParams.getName(),
                 filesystemCreationParams.getUrl(),
                 now,
