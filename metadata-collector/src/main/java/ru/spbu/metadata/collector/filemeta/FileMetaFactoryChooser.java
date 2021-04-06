@@ -1,12 +1,15 @@
 package ru.spbu.metadata.collector.filemeta;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Supplier;
 
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.parquet.hadoop.util.HadoopInputFile;
+import org.apache.parquet.io.SeekableInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -31,29 +34,23 @@ public class FileMetaFactoryChooser {
         this.unknownFileMetaFactory = unknownFileMetaFactory;
     }
 
-    public FileMetaFactory choose(FileSystem fs, FileStatus hadoopFileStatus) {
-        if (hadoopFileStatus.isDirectory()) {
+    public FileMetaFactory choose(FileStats fileStats, Supplier<SeekableInputStream> inputStreamSupplier) {
+        if (fileStats.isDirectory()) {
             return directoryFileMetaFactory;
         }
 
-        HadoopInputFile hadoopInputFile;
-        try {
-            hadoopInputFile = HadoopInputFile.fromStatus(hadoopFileStatus, fs.getConf());
-        } catch (IOException e) {
-            throw new RuntimeException("Can not read hadoop file", e);
-        }
-
+        SeekableInputStream inputStream = inputStreamSupplier.get();
         ByteBuffer buffer = ByteBuffer.allocate(4);
         int bytesRead;
         try {
-            bytesRead = hadoopInputFile.newStream().read(buffer);
+            bytesRead = inputStream.read(buffer);
         } catch (IOException e) {
             throw new RuntimeException("Can not create stream for hadoop file", e);
         }
 
         buffer.rewind();
         String fileHeader = StandardCharsets.US_ASCII.decode(buffer).toString();
-        log.debug("Input file: {}, header: {}", hadoopInputFile, fileHeader);
+        log.debug("Input file: {}, header: {}", fileStats.getPath(), fileHeader);
 
         if (bytesRead == 4 && fileHeader.equals(PARQUET_FILE_MAGIC_NUMBER)) {
             return parquetFileMetaFactory;

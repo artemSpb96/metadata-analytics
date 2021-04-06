@@ -1,8 +1,9 @@
 package ru.spbu.metadata.collector.filemeta;
 
+import java.util.function.Supplier;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
+import org.apache.parquet.io.SeekableInputStream;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,9 +13,9 @@ public class DirectoryFileMetaFactory extends FileMetaFactory {
     }
 
     @Override
-    public FileMeta createFileMeta(FileSystem fs, FileStatus hadoopFileStatus) {
+    public FileMeta createFileMeta(FileStats fileStats, Supplier<SeekableInputStream> inputStreamSupplier) {
         return new FileMeta(
-                getFilePath(hadoopFileStatus.getPath()),
+                fileStats.getPath(),
                 objectMapper.createObjectNode(),
                 true,
                 null

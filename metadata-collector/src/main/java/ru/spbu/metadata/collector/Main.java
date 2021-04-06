@@ -1,8 +1,5 @@
 package ru.spbu.metadata.collector;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -10,22 +7,21 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.util.StopWatch;
-import ru.spbu.metadata.collector.filemeta.FileMetaFactoryChooser;
 import ru.spbu.metadata.common.MetadataApiClient;
 import ru.spbu.metadata.common.domain.Filesystem;
 import ru.spbu.metadata.common.domain.FilesystemUpdateParams;
 import ru.spbu.metadata.common.domain.NodeCreationParams;
 
-@SpringBootApplication(scanBasePackages = {"ru.spbu.metadata.common", "ru.spbu.metadata.collector.filemeta"})
+@SpringBootApplication(scanBasePackages = {"ru.spbu.metadata.common", "ru.spbu.metadata.collector"})
 public class Main implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     private final MetadataApiClient metadataApiClient;
-    private final FileMetaFactoryChooser fileMetaFactoryChooser;
+    private final TraverserChooser traverserChooser;
 
-    public Main(MetadataApiClient metadataApiClient, FileMetaFactoryChooser fileMetaFactoryChooser) {
+    public Main(MetadataApiClient metadataApiClient, TraverserChooser traverserChooser) {
         this.metadataApiClient = metadataApiClient;
-        this.fileMetaFactoryChooser = fileMetaFactoryChooser;
+        this.traverserChooser = traverserChooser;
     }
 
     public static void main(String[] args) {
@@ -34,7 +30,7 @@ public class Main implements ApplicationRunner {
 
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
         if (!args.containsOption("filesystemId")) {
             throw new RuntimeException("Required options: ['filesystemId']");
         }
@@ -48,14 +44,11 @@ public class Main implements ApplicationRunner {
                 .orElseThrow(() -> new RuntimeException("Not found filesystem by " + filesystemId + " id"));
         sw.stop();
 
-        Configuration config = new Configuration();
-        config.set("fs.defaultFS", filesystem.getUrl());
-        FileSystem fileSystem = FileSystem.get(config);
         int newFilesystemVersion = filesystem.getActiveVersion() + 1;
 
         sw.start("traverse filesystem and update meta");
-        new HdfsTraverser(fileSystem, fileMetaFactoryChooser)
-                .traverse(new Path("/"))
+        traverserChooser.choose(filesystem.getUrl())
+                .traverse("/")
                 .forEach(fileMeta -> {
                     log.info("Find fileMeta: {}", fileMeta);
                     metadataApiClient.createNode(

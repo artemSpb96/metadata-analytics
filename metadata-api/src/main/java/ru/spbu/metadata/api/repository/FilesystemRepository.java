@@ -67,11 +67,7 @@ public class FilesystemRepository {
         );
     }
 
-    public void updateActiveVersion(
-            @Param("id") int id,
-            @Param("activeVer") int activeVersion,
-            @Param("updateTime") LocalDateTime updateTime
-    ) {
+    public void updateActiveVersion(int id, int activeVersion, LocalDateTime updateTime) {
         jdbcTemplate.update(
                 UPDATE_ACTIVE_VERSION_QUERY,
                 new MapSqlParameterSource()
