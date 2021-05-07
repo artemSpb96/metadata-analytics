@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS filesystem (
 
 CREATE TABLE IF NOT EXISTS node (
     fs_id int REFERENCES filesystem(fs_id),
-    path TEXT NOT NULL,
+    path TEXT COLLATE "C" NOT NULL,
+    lvl int NOT NULL,
     start_ver int NOT NULL,
     ver int NOT NULL,
     meta json NOT NULL,
@@ -18,3 +19,6 @@ CREATE TABLE IF NOT EXISTS node (
     file_type TEXT,
     PRIMARY KEY (fs_id, path, start_ver)
 );
+
+CREATE INDEX children_idx
+ON node(fs_id, lvl, path, start_ver);

@@ -22,11 +22,12 @@ public class NodeRepository {
     private static final String SELECT_CHILDREN_NODES_QUERY = "" +
             "SELECT fs_id, path, start_ver, ver, meta, create_time, is_dir, file_type " +
             "FROM node " +
-            "WHERE fs_id = :filesystemId AND path ~ :pathRegex AND start_ver <= :ver AND ver >= :ver";
+            "WHERE fs_id = :filesystemId AND path LIKE :basePath AND start_ver <= :ver AND ver >= :ver AND lvl = :lvl";
 
     private static final String INSERT_NODE_QUERY = "" +
-            "INSERT INTO node(fs_id, path, start_ver, ver, meta, create_time, is_dir, file_type) " +
-            "VALUES (:filesystemId, :path, :startVer, :ver, to_json(:meta::json), :createTime, :isDir, :fileType);";
+            "INSERT INTO node(fs_id, path, start_ver, ver, meta, create_time, is_dir, file_type, lvl) " +
+            "VALUES (:filesystemId, :path, :startVer, :ver, to_json(:meta::json), :createTime, :isDir, :fileType, " +
+            ":lvl);";
 
     private static final String UPDATE_NODE_QUERY = "" +
             "UPDATE node " +
@@ -47,6 +48,10 @@ public class NodeRepository {
         this.objectMapper = objectMapper;
     }
 
+    private static int findLevel(String path) {
+        return StringUtils.countMatches(path, '/');
+    }
+
     public Optional<Node> findNode(int filesystemId, String path, int version) {
         List<Node> nodes = jdbcTemplate.query(
                 SELECT_NODE_QUERY,
@@ -58,14 +63,17 @@ public class NodeRepository {
     }
 
     public List<Node> findChildrenNodes(int filesystemId, String basePath, int version) {
-        if (basePath.endsWith("/")) {
-            basePath = basePath.substring(0, basePath.length() - 1);
+        if (!basePath.endsWith("/")) {
+            basePath += "/";
         }
-        String pathRegex = String.format("^%s/([^/]+)/?$", RegexUtils.escapeSpecialChars(basePath));
 
         return jdbcTemplate.query(
                 SELECT_CHILDREN_NODES_QUERY,
-                Map.of("filesystemId", filesystemId, "pathRegex", pathRegex, "ver", version),
+                Map.of(
+                        "filesystemId", filesystemId,
+                        "basePath", basePath + "%",
+                        "ver", version,
+                        "lvl", findLevel(basePath)),
                 nodeMapper
         );
     }
@@ -89,6 +97,7 @@ public class NodeRepository {
                         .addValue("createTime", node.getCreateTime())
                         .addValue("isDir", node.isDir())
                         .addValue("fileType", node.getFileType() == null ? null : node.getFileType().name())
+                        .addValue("lvl", findLevel(node.getPath()))
         );
     }
 
