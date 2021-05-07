@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -32,9 +33,9 @@ public class NodeRepository {
             "SET ver = :newVer " +
             "WHERE fs_id = :filesystemId AND path = :path AND start_ver = :startVer;";
 
-    private static final String DELETE_NODE_QUERY = "" +
+    private static final String DELETE_NODES_QUERY = "" +
             "DELETE FROM node " +
-            "WHERE fs_id = :filesystemId AND path = :path AND start_ver = :startVer;";
+            "WHERE fs_id = :filesystemId AND start_ver = :startVer %s;";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final NodeMapper nodeMapper;
@@ -102,13 +103,16 @@ public class NodeRepository {
         );
     }
 
-    public void deleteNode(int filesystemId, String path, int startVersion) {
-        jdbcTemplate.update(
-                DELETE_NODE_QUERY,
-                new MapSqlParameterSource()
-                        .addValue("filesystemId", filesystemId)
-                        .addValue("path", path)
-                        .addValue("startVer", startVersion)
-        );
+    public void deleteNodes(int filesystemId, String path, int startVersion) {
+        String extraCondition = "";
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("filesystemId", filesystemId)
+                .addValue("startVer", startVersion);
+        if (StringUtils.isNotBlank(path)) {
+            extraCondition = "AND path = :path ";
+            params.addValue("path", path);
+        }
+
+        jdbcTemplate.update(String.format(DELETE_NODES_QUERY, extraCondition), params);
     }
 }

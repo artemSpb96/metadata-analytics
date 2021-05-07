@@ -8,14 +8,14 @@ import org.springframework.stereotype.Component;
 import ru.spbu.metadata.collector.filemeta.FileMetaFactoryChooser;
 
 @Component
-public class TraverserChooser {
+public class FilesystemTraverserChooser {
     private final FileMetaFactoryChooser fileMetaFactoryChooser;
 
-    public TraverserChooser(FileMetaFactoryChooser fileMetaFactoryChooser) {
+    public FilesystemTraverserChooser(FileMetaFactoryChooser fileMetaFactoryChooser) {
         this.fileMetaFactoryChooser = fileMetaFactoryChooser;
     }
 
-    public Traverser choose(String filesystemUrl) {
+    public FilesystemTraverser choose(String filesystemUrl) {
         if (filesystemUrl.startsWith("hdfs")) {
             Configuration config = new Configuration();
             config.set("fs.defaultFS", filesystemUrl);

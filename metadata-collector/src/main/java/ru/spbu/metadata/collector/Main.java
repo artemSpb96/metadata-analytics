@@ -17,9 +17,9 @@ public class Main implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     private final MetadataApiClient metadataApiClient;
-    private final TraverserChooser traverserChooser;
+    private final FilesystemTraverserChooser traverserChooser;
 
-    public Main(MetadataApiClient metadataApiClient, TraverserChooser traverserChooser) {
+    public Main(MetadataApiClient metadataApiClient, FilesystemTraverserChooser traverserChooser) {
         this.metadataApiClient = metadataApiClient;
         this.traverserChooser = traverserChooser;
     }
@@ -45,6 +45,10 @@ public class Main implements ApplicationRunner {
         sw.stop();
 
         int newFilesystemVersion = filesystem.getActiveVersion() + 1;
+
+        sw.start("delete non active nodes");
+        metadataApiClient.deleteNodes(filesystemId, newFilesystemVersion);
+        sw.stop();
 
         sw.start("traverse filesystem and update meta");
         traverserChooser.choose(filesystem.getUrl())

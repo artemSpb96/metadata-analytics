@@ -18,7 +18,7 @@ import ru.spbu.metadata.collector.filemeta.FileMetaFactory;
 import ru.spbu.metadata.collector.filemeta.FileMetaFactoryChooser;
 import ru.spbu.metadata.collector.filemeta.FileStats;
 
-public class HdfsTraverser implements Traverser {
+public class HdfsTraverser implements FilesystemTraverser {
     private final FileSystem fs;
     private final FileMetaFactoryChooser fileMetaFactoryChooser;
 

@@ -56,6 +56,15 @@ public class MetadataApiClient {
         ).getBody();
     }
 
+    public void deleteNodes(int filesystemId, int version) {
+        URI deleteNodeUrl = UriComponentsBuilder.fromUriString(url)
+                .pathSegment("filesystems", String.valueOf(filesystemId), String.valueOf(version))
+                .build()
+                .toUri();
+
+        metadataApiRestTemplate.delete(deleteNodeUrl);
+    }
+
     public Optional<Filesystem> getFilesystem(int filesystemId) {
         URI getFilesystemUrl = UriComponentsBuilder.fromUriString(url)
                 .pathSegment("filesystems", String.valueOf(filesystemId))

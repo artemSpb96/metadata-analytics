@@ -4,6 +4,6 @@ import java.util.stream.Stream;
 
 import ru.spbu.metadata.collector.filemeta.FileMeta;
 
-public interface Traverser {
+public interface FilesystemTraverser {
     Stream<FileMeta> traverse(String root);
 }

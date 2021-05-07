@@ -36,12 +36,13 @@ public class NodeService {
         return nodeRepository.findChildrenNodes(filesystemId, basePath, version);
     }
 
+    public void deleteNodes(int filesystemId, String path, int version) {
+        nodeRepository.deleteNodes(filesystemId, path, version);
+    }
+
     @Transactional
     public void saveNode(int filesystemId, int version, NodeCreationParams nodeCreationParams) {
         Optional<Node> oldNodeOpt = nodeRepository.findNode(filesystemId, nodeCreationParams.getPath(), version - 1);
-
-        // delete possible conflicting nodes from previous collector launches
-        nodeRepository.deleteNode(filesystemId, nodeCreationParams.getPath(), version);
 
         Node newNode = new Node(
                 filesystemId,
